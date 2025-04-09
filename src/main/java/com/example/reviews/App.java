@@ -5,6 +5,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -82,7 +83,7 @@ public class App {
      *   <li>Converts both the title and the keyword to lowercase so that matching
      *       is case-insensitive (e.g., "Great" matches "great").</li>
      *   <li>Checks if the title contains the keyword using {@code String.contains()}.</li>
-     *   <li>Gathers all the matching results into a new list using {@code Collectors.toList()}.</li>
+     *   <li>Gathers all the matching results into a nList<Review>();ew list using {@code Collectors.toList()}.</li>
      * </ol>
      *
      * <h3>What's going on with Collectors.toList()?</h3>
@@ -117,7 +118,12 @@ public class App {
 
     public static List<Review> filterByPriceRange(List<Review> reviews, double min, double max) {
         //TODO - you need to implement this using a functional approach!
-        return null;
+        return reviews.stream()
+                .filter(r ->
+                    r.getPrice() > min && 
+                    r.getPrice() < max
+                )
+                .collect(Collectors.toList());
     }
 
     public static Map<String, Long> countByProductId(List<Review> reviews) {
@@ -151,7 +157,15 @@ public class App {
 
     public static List<String> getHomeProductIdsUnder100(List<Review> reviews) {
         //TODO - you need to implement this using a functional approach!
-        return new ArrayList<String>();                             // Final list of productIds
+        return reviews.stream()
+            .filter(r -> "Home".equalsIgnoreCase(r.getCategory()))
+            .filter(r -> r.getPrice() < 100)
+            .sorted(Comparator.comparingDouble(Review::getPrice))
+            .map(Review::getProductId)
+            .filter(Objects::nonNull)
+            .map(String::toUpperCase)
+            .collect(Collectors.toList());
+        // Final list of productIds
     }
 
     
